@@ -88,7 +88,7 @@ class DJRangeGauge: UIView {
         let needleSin = (self.needleRadius * 2) / self.bounds.size.height
         let needleCos = cos(asin(needleSin))
         let needleATan = atan2(needleSin, needleCos)
-        let needleATanMultiplier = needleATan + ((self.currentLowerRadian * needleATan) / 2.35)
+        let needleATanMultiplier = needleATan + ((self.currentLowerRadian * needleATan) / CGFloat(Double.pi * 0.75))
         let insetRadians: CGFloat = needleATan - needleATanMultiplier
         let starttime: CGFloat = CGFloat(Double.pi)
         let endtime: CGFloat = 2 * CGFloat(Double.pi)
