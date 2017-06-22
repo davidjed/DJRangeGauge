@@ -32,7 +32,8 @@ class DJRangeGauge: UIView {
     var centerY: CGFloat {
         return self.bounds.size.height
     }
-    var needleColor: UIColor = UIColor(red: 76/255.0, green: 177/255.0, blue: 88/255.0, alpha: 1)
+    var lowerNeedleColor: UIColor = UIColor(red: 76/255.0, green: 177/255.0, blue: 88/255.0, alpha: 1)
+    var upperNeedleColor: UIColor = UIColor(red: 162/255.0, green: 235/255.0, blue: 176/255.0, alpha: 1)
     var bgColor: UIColor = UIColor(red: 211/255.0, green: 211/255.0, blue: 211/255.0, alpha: 1)
     var maxlevel: UInt = 10
     var minlevel: UInt = 0
@@ -42,8 +43,10 @@ class DJRangeGauge: UIView {
             return self.maxlevel - self.minlevel
         }
     }
-    var currentRadian: CGFloat = 0.0
-    var oldLevel: NSInteger = 0
+    var currentLowerRadian: CGFloat = 0.0
+    var currentUpperRadian: CGFloat = 0.0
+    var oldLowerLevel: NSInteger = 0
+    var oldUpperLevel: NSInteger = 0
     weak var delegate: DJRangeGaugeDelegate?
 
     
@@ -69,7 +72,7 @@ class DJRangeGauge: UIView {
         self.isOpaque = false
         self.contentMode = UIViewContentMode.redraw
         
-        self.currentRadian = 0;
+        self.currentLowerRadian = 0;
         self.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(handlePan(gesture:))))
     }
     
@@ -77,18 +80,19 @@ class DJRangeGauge: UIView {
     
     override func draw(_ rect: CGRect) {
         self.drawBackground()
-        self.drawNeedle()
+        self.drawNeedle(self.currentLowerRadian, needleColor: self.lowerNeedleColor)
+        self.drawNeedle(self.currentUpperRadian, needleColor: self.upperNeedleColor)
     }
     
     func drawBackground() {
         let needleSin = (self.needleRadius * 2) / self.bounds.size.height
         let needleCos = cos(asin(needleSin))
         let needleATan = atan2(needleSin, needleCos)
-        let needleATanMultiplier = needleATan + ((self.currentRadian * needleATan) / 2)
+        let needleATanMultiplier = needleATan + ((self.currentLowerRadian * needleATan) / 2.35)
         let insetRadians: CGFloat = needleATan - needleATanMultiplier
         let starttime: CGFloat = CGFloat(Double.pi)
         let endtime: CGFloat = 2 * CGFloat(Double.pi)
-        let bgCurrentRadian: CGFloat = self.currentRadian + insetRadians
+        let bgCurrentRadian: CGFloat = self.currentLowerRadian + insetRadians
         let bgEndAngle: CGFloat = 1.5 * CGFloat(Double.pi) + bgCurrentRadian
         
         if bgEndAngle > starttime {
@@ -108,7 +112,7 @@ class DJRangeGauge: UIView {
         bgPath2.move(to: self.center)
         bgPath2.addArc(withCenter: self.center,
                        radius: self.bgRadius,
-                       startAngle: 1.5 * CGFloat(Double.pi) + bgCurrentRadian,//self.currentRadian,
+                       startAngle: 1.5 * CGFloat(Double.pi) + bgCurrentRadian,
                        endAngle: endtime,
                        clockwise: true)
         self.lighterColor(forColor: self.bgColor).set()
@@ -142,7 +146,7 @@ class DJRangeGauge: UIView {
         return UIColor(red: min(1.0, red + 0.1), green: min(1.0, green + 0.1), blue: min(1.0, blue + 0.1), alpha: alpha)
     }
 
-    func drawNeedle() {
+    func drawNeedle(_ radian: CGFloat, needleColor: UIColor) {
         let distance = self.bgRadius - self.needleRadius
         let starttime: CGFloat = 0
         let endtime: CGFloat = CGFloat(Double.pi)
@@ -160,7 +164,11 @@ class DJRangeGauge: UIView {
         let next: CGPoint = CGPoint(x: nextX, y: nextY)
         
         needlePath.addLine(to: next)
-        needlePath.addArc(withCenter: self.needleCenter, radius: self.needleRadius, startAngle: starttime, endAngle: endtime, clockwise: true)
+        needlePath.addArc(withCenter: self.needleCenter,
+                          radius: self.needleRadius,
+                          startAngle: starttime,
+                          endAngle: endtime,
+                          clockwise: true)
         needlePath.addLine(to: topPoint1)
         needlePath.addQuadCurve(to: topPoint2, controlPoint: topPoint)
         needlePath.addLine(to: finishPoint)
@@ -169,13 +177,14 @@ class DJRangeGauge: UIView {
                                                              y: -1 * (self.bounds.origin.y + self.needleCenter.y))
         needlePath.apply(translate)
         
-        let rotate: CGAffineTransform = CGAffineTransform(rotationAngle: self.currentRadian)
+        let rotate: CGAffineTransform = CGAffineTransform(rotationAngle: radian)
         needlePath.apply(rotate)
         
-        translate = CGAffineTransform(translationX: self.bounds.origin.x + self.needleCenter.x, y: self.bounds.origin.y + self.needleCenter.y)
+        translate = CGAffineTransform(translationX: self.bounds.origin.x + self.needleCenter.x,
+                                      y: self.bounds.origin.y + self.needleCenter.y)
         needlePath.apply(translate)
         
-        self.needleColor.set()
+        needleColor.set()
         needlePath.fill()
     }
 
@@ -183,9 +192,25 @@ class DJRangeGauge: UIView {
         let currentPosition = gesture.location(in: self)
         
         if gesture.state == UIGestureRecognizerState.changed {
-            self.currentRadian = self.calculateRadian(pos: currentPosition)
+            let newRadian = self.calculateRadian(pos: currentPosition)
+            
+            //adjust whichever radian is closer, which is the same as moving the closer
+            //needle radian to the newRadian
+            let lowerDistance = abs(newRadian - self.currentLowerRadian)
+            let upperDistance = abs(newRadian - self.currentUpperRadian)
+            
+            //make sure this doesn't cause upper to be lower than lower
+            if(lowerDistance < upperDistance && newRadian < self.currentUpperRadian) {
+                self.currentLowerRadian = newRadian
+            }
+            else if newRadian > self.currentLowerRadian {
+                self.currentUpperRadian = newRadian
+            }
+            
+            
             self.setNeedsDisplay()
-            self.updateCurrentLevel()
+            self.updateCurrentLowerLevel()
+            self.updateCurrentUpperLevel()
         }
     }
     
@@ -198,7 +223,12 @@ class DJRangeGauge: UIView {
         }
         
         if pos.y > self.center.y {
-            return self.currentRadian
+            if pos.x < self.center.x {
+                return self.currentLowerRadian
+            }
+            else {
+                return self.currentUpperRadian
+            }
         }
         
         // calculate distance between pos and center
@@ -237,52 +267,100 @@ class DJRangeGauge: UIView {
     }
     
     //update of currentLevel in response to user pan
-    func updateCurrentLevel() {
+    func updateCurrentLowerLevel() {
         var level: Int = -1
         
         let levelSection: CGFloat = CGFloat(Double.pi) / CGFloat(self.scale)
         var currentSection: CGFloat = -CGFloat(Double.pi/2)
         
         for index: UInt in 1 ..< self.scale {
-            if self.currentRadian >= currentSection && self.currentRadian < (currentSection + levelSection) {
+            if self.currentLowerRadian >= currentSection && self.currentLowerRadian < (currentSection + levelSection) {
                 level = Int(index)
                 break
             }
             currentSection += levelSection;
         }
 
-        if (self.currentRadian >= CGFloat(Double.pi/2)) {
+        if (self.currentLowerRadian >= CGFloat(Double.pi/2)) {
             level = Int(self.scale + 1)
         }
     
         level = level + Int(self.minlevel - 1)
     
-        if self.oldLevel != level && self.delegate != nil {
-            self.delegate!.rangeGauge(self, didChangeLevel: level)
+        if self.oldLowerLevel != level && self.delegate != nil {
+            self.delegate!.rangeGauge(self, didChangeLowerLevel: level)
         }
         
-        self.oldLevel = level
+        self.oldLowerLevel = level
     }
     
-    func setCurrentLevel(_ level: Int) {
+    //update of currentLevel in response to user pan
+    func updateCurrentUpperLevel() {
+        var level: Int = -1
+        
+        let levelSection: CGFloat = CGFloat(Double.pi) / CGFloat(self.scale)
+        var currentSection: CGFloat = -CGFloat(Double.pi/2)
+        
+        for index: UInt in 1 ..< self.scale {
+            if self.currentUpperRadian >= currentSection && self.currentUpperRadian < (currentSection + levelSection) {
+                level = Int(index)
+                break
+            }
+            currentSection += levelSection;
+        }
+        
+        if (self.currentUpperRadian >= CGFloat(Double.pi/2)) {
+            level = Int(self.scale + 1)
+        }
+        
+        level = level + Int(self.minlevel - 1)
+        
+        if self.oldUpperLevel != level && self.delegate != nil {
+            self.delegate!.rangeGauge(self, didChangeUpperLevel: level)
+        }
+        
+        self.oldUpperLevel = level
+    }
+    
+    func setCurrentLowerLevel(_ level: Int) {
         if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
     
-            self.oldLevel = level;
+            self.oldLowerLevel = level;
         
             let range = CGFloat(Double.pi)
             if (CGFloat(level) != CGFloat(self.scale/2)) {
                 
-                self.currentRadian = (CGFloat(level) * range)/CGFloat(self.scale) - (range/2)
+                self.currentLowerRadian = (CGFloat(level) * range)/CGFloat(self.scale) - (range/2)
             }
             else {
-                self.currentRadian = 0.0
+                self.currentLowerRadian = 0.0
             }
         
+            self.setNeedsDisplay()
+        }
+    }
+
+    
+    func setCurrentUpperLevel(_ level: Int) {
+        if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
+            
+            self.oldUpperLevel = level;
+            
+            let range = CGFloat(Double.pi)
+            if (CGFloat(level) != CGFloat(self.scale/2)) {
+                
+                self.currentUpperRadian = (CGFloat(level) * range)/CGFloat(self.scale) - (range/2)
+            }
+            else {
+                self.currentUpperRadian = 0.0
+            }
+            
             self.setNeedsDisplay()
         }
     }
 }
 
 protocol DJRangeGaugeDelegate: class {
-    func rangeGauge(_ gauge: DJRangeGauge, didChangeLevel level: Int)
+    func rangeGauge(_ gauge: DJRangeGauge, didChangeLowerLevel level: Int)
+    func rangeGauge(_ gauge: DJRangeGauge, didChangeUpperLevel level: Int)
 }

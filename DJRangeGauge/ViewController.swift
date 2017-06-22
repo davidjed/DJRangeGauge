@@ -18,13 +18,18 @@ class ViewController: UIViewController, DJRangeGaugeDelegate {
         self.rangeGauge.needleRadius = 10.0
         self.rangeGauge.maxlevel = 10
         self.rangeGauge.minlevel = 1
-        self.rangeGauge.setCurrentLevel(2)
+        self.rangeGauge.setCurrentLowerLevel(2)
+        self.rangeGauge.setCurrentUpperLevel(7)
         self.rangeGauge.layer.borderWidth = 1.0
         self.rangeGauge.layer.borderColor = UIColor.blue.cgColor
         self.rangeGauge.delegate = self
     }
 
-    func rangeGauge(_ gauge: DJRangeGauge, didChangeLevel level: Int) {
+    func rangeGauge(_ gauge: DJRangeGauge, didChangeLowerLevel level: Int) {
+        print("Current Level is \(level)")
+    }
+    
+    func rangeGauge(_ gauge: DJRangeGauge, didChangeUpperLevel level: Int) {
         print("Current Level is \(level)")
     }
 }
