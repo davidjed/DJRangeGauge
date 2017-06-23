@@ -14,7 +14,7 @@ import UIKit
     static let LightGreen: UIColor = UIColor(red: 162/255.0, green: 235/255.0, blue: 176/255.0, alpha: 1)
     static let MediumGray: UIColor = UIColor(red: 211/255.0, green: 211/255.0, blue: 211/255.0, alpha: 1)
     
-    @IBInspectable var needleRadius: CGFloat = 10
+    @IBInspectable public var needleRadius: CGFloat = 10
     override public var center: CGPoint {
         get {
             return CGPoint(x: self.centerX, y: self.centerY)
@@ -36,11 +36,11 @@ import UIKit
     var centerY: CGFloat {
         return self.bounds.size.height
     }
-    @IBInspectable var lowerNeedleColor: UIColor = DJRangeGauge.DarkGreen
-    @IBInspectable var upperNeedleColor: UIColor = DJRangeGauge.LightGreen
-    @IBInspectable var bgColor: UIColor = DJRangeGauge.MediumGray
-    @IBInspectable var maxLevel: UInt = 10
-    @IBInspectable var minLevel: UInt = 0
+    @IBInspectable public var lowerNeedleColor: UIColor = DJRangeGauge.DarkGreen
+    @IBInspectable public var upperNeedleColor: UIColor = DJRangeGauge.LightGreen
+    @IBInspectable public var bgColor: UIColor = DJRangeGauge.MediumGray
+    @IBInspectable public var maxLevel: UInt = 10
+    @IBInspectable public var minLevel: UInt = 0
     var bgRadius: CGFloat = 0
     var scale: UInt {
         get {
@@ -51,14 +51,14 @@ import UIKit
     var currentUpperRadian: CGFloat = 0.0
     
     //publicly visible levels
-    var lowerNeedleLevel: NSInteger = 0
-    var upperNeedleLevel: NSInteger = 0
-    @IBInspectable weak var delegate: DJRangeGaugeDelegate?
+    public var lowerNeedleLevel: NSInteger = 0
+    public var upperNeedleLevel: NSInteger = 0
+    @IBInspectable weak public var delegate: DJRangeGaugeDelegate?
     
     
     //MARK: - init
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         self.setup()
     }
@@ -277,7 +277,7 @@ import UIKit
     }
     
     //update of currentLevel in response to user pan
-    func updateCurrentLowerLevel() {
+    public func updateCurrentLowerLevel() {
         let oldLowerLevel = self.lowerNeedleLevel
         self.lowerNeedleLevel = self.updateCurrentLevel(currentRadian: self.currentLowerRadian)//level
         if self.lowerNeedleLevel != oldLowerLevel && self.delegate != nil {
@@ -286,7 +286,7 @@ import UIKit
     }
     
     //update of currentLevel in response to user pan
-    func updateCurrentUpperLevel() {
+    public func updateCurrentUpperLevel() {
         let oldUpperLevel = self.upperNeedleLevel
         self.upperNeedleLevel = self.updateCurrentLevel(currentRadian: self.currentUpperRadian)//level
         if self.upperNeedleLevel != oldUpperLevel && self.delegate != nil {
@@ -319,7 +319,7 @@ import UIKit
         return level
     }
     
-    func setCurrentLowerLevel(_ level: Int) {
+    public func setCurrentLowerLevel(_ level: Int) {
         if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
             self.lowerNeedleLevel = level
             self.currentLowerRadian = self.radianFromLevel(level)
@@ -328,7 +328,7 @@ import UIKit
     }
     
     
-    func setCurrentUpperLevel(_ level: Int) {
+    public func setCurrentUpperLevel(_ level: Int) {
         if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
             self.upperNeedleLevel = level
             self.currentUpperRadian = self.radianFromLevel(level)

@@ -58,11 +58,11 @@
 			children = (
 				2C66CFEB1EF7804700A053CC /* AppDelegate.swift */,
 				2C66CFED1EF7804700A053CC /* ViewController.swift */,
+				2C66CFFD1EF784B600A053CC /* DJRangeGauge.swift */,
 				2C66CFEF1EF7804800A053CC /* Main.storyboard */,
 				2C66CFF21EF7804800A053CC /* Assets.xcassets */,
 				2C66CFF41EF7804800A053CC /* LaunchScreen.storyboard */,
 				2C66CFF71EF7804800A053CC /* Info.plist */,
-				2C66CFFD1EF784B600A053CC /* DJRangeGauge.swift */,
 			);
 			path = DJRangeGauge;
 			sourceTree = "<group>";
