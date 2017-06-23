@@ -8,7 +8,7 @@
 
 import UIKit
 
-@IBDesignable class DJRangeGauge: UIView {
+@IBDesignable public class DJRangeGauge: UIView {
     
     static let DarkGreen: UIColor = UIColor(red: 76/255.0, green: 177/255.0, blue: 88/255.0, alpha: 1)
     static let LightGreen: UIColor = UIColor(red: 162/255.0, green: 235/255.0, blue: 176/255.0, alpha: 1)
