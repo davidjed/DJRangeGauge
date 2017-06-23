@@ -45,8 +45,10 @@ class DJRangeGauge: UIView {
     }
     var currentLowerRadian: CGFloat = 0.0
     var currentUpperRadian: CGFloat = 0.0
-    var oldLowerLevel: NSInteger = 0
-    var oldUpperLevel: NSInteger = 0
+    
+    //publicly visible levels
+    var lowerLevel: NSInteger = 0
+    var upperLevel: NSInteger = 0
     weak var delegate: DJRangeGaugeDelegate?
 
     
@@ -85,43 +87,49 @@ class DJRangeGauge: UIView {
     }
     
     func drawBackground() {
+        //multipliers are needed to convert from needle angle range space (which is smaller by the radius
+        //of the needle, converted via sin & cos to radians on the circle) to background range space
+        //(which is the full 180 degrees)
+        //need this to make the "fill area" between the needles match the needles themselves
         let needleSin = (self.needleRadius * 2) / self.bounds.size.height
         let needleCos = cos(asin(needleSin))
         let needleATan = atan2(needleSin, needleCos)
-        let needleATanMultiplier = needleATan + ((self.currentLowerRadian * needleATan) / CGFloat(Double.pi * 0.75))
-        let insetRadians: CGFloat = needleATan - needleATanMultiplier
+        let lowerNeedleATanMultiplier = needleATan + ((self.currentLowerRadian * needleATan) / CGFloat(Double.pi * 0.75))
+        let upperNeedleATanMultiplier = needleATan + ((self.currentUpperRadian * needleATan) / CGFloat(Double.pi * 0.75))
+        let lowerInsetRadians: CGFloat = needleATan - lowerNeedleATanMultiplier
+        let upperInsetRadians: CGFloat = needleATan + upperNeedleATanMultiplier
         let starttime: CGFloat = CGFloat(Double.pi)
         let endtime: CGFloat = 2 * CGFloat(Double.pi)
-        let bgCurrentRadian: CGFloat = self.currentLowerRadian + insetRadians
-        let bgEndAngle: CGFloat = 1.5 * CGFloat(Double.pi) + bgCurrentRadian
-        
-        if bgEndAngle > starttime {
-            let bgPath: UIBezierPath = UIBezierPath()
-            bgPath.move(to: self.center)
-            bgPath.addArc(withCenter: self.center,
-                          radius: self.bgRadius,
-                          startAngle: starttime,
-                          endAngle: 1.5 * CGFloat(Double.pi) + bgCurrentRadian,
-                          clockwise: true)
-            bgPath.addLine(to: self.center)
-            self.bgColor.set()
-            bgPath.fill()
-        }
+        let bgStartRadian: CGFloat = self.currentLowerRadian + lowerInsetRadians
+        let bgEndRadian: CGFloat = self.currentUpperRadian - upperInsetRadians
         
         let bgPath2: UIBezierPath = UIBezierPath()
         bgPath2.move(to: self.center)
         bgPath2.addArc(withCenter: self.center,
                        radius: self.bgRadius,
-                       startAngle: 1.5 * CGFloat(Double.pi) + bgCurrentRadian,
+                       startAngle: starttime,
                        endAngle: endtime,
                        clockwise: true)
         self.lighterColor(forColor: self.bgColor).set()
         bgPath2.fill()
         
+        //shaded area between needles
+        //a bit of angle trickery to get it just right
+        let bgPath: UIBezierPath = UIBezierPath()
+        bgPath.move(to: self.center)
+        bgPath.addArc(withCenter: self.center,
+                      radius: self.bgRadius,
+                      startAngle: bgStartRadian - CGFloat(Double.pi/2),
+                      endAngle: bgEndRadian - CGFloat(Double.pi * 0.35),
+                      clockwise: true)
+        bgPath.addLine(to: self.center)
+        self.bgColor.set()
+        bgPath.fill()
+        
         let bgPathInner: UIBezierPath = UIBezierPath()
         bgPathInner.move(to: self.center)
         
-        let innerRadius: CGFloat = self.bgRadius - (self.bgRadius * 0.3)
+        let innerRadius: CGFloat = self.bgRadius - (self.bgRadius * 0.4)
         bgPathInner.addArc(withCenter: self.center, radius: innerRadius, startAngle: starttime, endAngle: endtime, clockwise: true)
         bgPathInner.addLine(to: self.center)
         
@@ -287,11 +295,11 @@ class DJRangeGauge: UIView {
     
         level = level + Int(self.minlevel - 1)
     
-        if self.oldLowerLevel != level && self.delegate != nil {
+        if self.lowerLevel != level && self.delegate != nil {
             self.delegate!.rangeGauge(self, didChangeLowerLevel: level)
         }
         
-        self.oldLowerLevel = level
+        self.lowerLevel = level
     }
     
     //update of currentLevel in response to user pan
@@ -315,17 +323,17 @@ class DJRangeGauge: UIView {
         
         level = level + Int(self.minlevel - 1)
         
-        if self.oldUpperLevel != level && self.delegate != nil {
+        if self.upperLevel != level && self.delegate != nil {
             self.delegate!.rangeGauge(self, didChangeUpperLevel: level)
         }
         
-        self.oldUpperLevel = level
+        self.upperLevel = level
     }
     
     func setCurrentLowerLevel(_ level: Int) {
         if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
     
-            self.oldLowerLevel = level;
+            self.lowerLevel = level;
         
             let range = CGFloat(Double.pi)
             if (CGFloat(level) != CGFloat(self.scale/2)) {
@@ -344,7 +352,7 @@ class DJRangeGauge: UIView {
     func setCurrentUpperLevel(_ level: Int) {
         if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
             
-            self.oldUpperLevel = level;
+            self.upperLevel = level;
             
             let range = CGFloat(Double.pi)
             if (CGFloat(level) != CGFloat(self.scale/2)) {

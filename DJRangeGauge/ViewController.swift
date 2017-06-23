@@ -26,11 +26,11 @@ class ViewController: UIViewController, DJRangeGaugeDelegate {
     }
 
     func rangeGauge(_ gauge: DJRangeGauge, didChangeLowerLevel level: Int) {
-        print("Current Level is \(level)")
+        print("Current Lower Level is \(level)")
     }
     
     func rangeGauge(_ gauge: DJRangeGauge, didChangeUpperLevel level: Int) {
-        print("Current Level is \(level)")
+        print("Current Upper Level is \(level)")
     }
 }
 
