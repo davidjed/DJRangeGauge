@@ -16,8 +16,8 @@ class ViewController: UIViewController, DJRangeGaugeDelegate {
         super.viewDidLoad()
         
         self.rangeGauge.needleRadius = 10.0
-        self.rangeGauge.maxlevel = 10
-        self.rangeGauge.minlevel = 1
+        self.rangeGauge.maxLevel = 10
+        self.rangeGauge.minLevel = 1
         self.rangeGauge.setCurrentLowerLevel(2)
         self.rangeGauge.setCurrentUpperLevel(7)
         self.rangeGauge.layer.borderWidth = 1.0

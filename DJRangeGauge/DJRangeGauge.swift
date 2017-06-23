@@ -39,12 +39,12 @@ import UIKit
     @IBInspectable var lowerNeedleColor: UIColor = DJRangeGauge.DarkGreen
     @IBInspectable var upperNeedleColor: UIColor = DJRangeGauge.LightGreen
     @IBInspectable var bgColor: UIColor = DJRangeGauge.MediumGray
-    @IBInspectable var maxlevel: UInt = 10
-    @IBInspectable var minlevel: UInt = 0
+    @IBInspectable var maxLevel: UInt = 10
+    @IBInspectable var minLevel: UInt = 0
     var bgRadius: CGFloat = 0
     var scale: UInt {
         get {
-            return self.maxlevel - self.minlevel
+            return self.maxLevel - self.minLevel
         }
     }
     var currentLowerRadian: CGFloat = 0.0
@@ -314,13 +314,13 @@ import UIKit
             level = Int(self.scale + 1)
         }
         
-        level = level + Int(self.minlevel - 1)
+        level = level + Int(self.minLevel - 1)
         
         return level
     }
     
     func setCurrentLowerLevel(_ level: Int) {
-        if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
+        if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
             self.lowerNeedleLevel = level
             self.currentLowerRadian = self.radianFromLevel(level)
             self.setNeedsDisplay()
@@ -329,7 +329,7 @@ import UIKit
 
     
     func setCurrentUpperLevel(_ level: Int) {
-        if level >= Int(self.minlevel) && level <= Int(self.maxlevel) {
+        if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
             self.upperNeedleLevel = level
             self.currentUpperRadian = self.radianFromLevel(level)
             self.setNeedsDisplay()

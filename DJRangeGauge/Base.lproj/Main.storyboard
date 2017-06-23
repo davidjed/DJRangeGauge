@@ -33,10 +33,10 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="needleRadius">
                                         <real key="value" value="10"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="maxlevel">
+                                    <userDefinedRuntimeAttribute type="number" keyPath="maxLevel">
                                         <integer key="value" value="10"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="minlevel">
+                                    <userDefinedRuntimeAttribute type="number" keyPath="minLevel">
                                         <integer key="value" value="1"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
