@@ -314,13 +314,13 @@ import UIKit
             level = Int(self.scale + 1)
         }
         
-        level = level + Int(self.minLevel - 1)
+        level = level + Int(self.minLevel)
         
         return level
     }
     
     public func setCurrentLowerLevel(_ level: Int) {
-        if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
+        if level >= Int(self.minLevel) && level < Int(self.maxLevel) {
             self.lowerNeedleLevel = level
             self.currentLowerRadian = self.radianFromLevel(level)
             self.setNeedsDisplay()
@@ -329,7 +329,7 @@ import UIKit
     
     
     public func setCurrentUpperLevel(_ level: Int) {
-        if level >= Int(self.minLevel) && level <= Int(self.maxLevel) {
+        if level >= Int(self.minLevel) && level < Int(self.maxLevel) {
             self.upperNeedleLevel = level
             self.currentUpperRadian = self.radianFromLevel(level)
             self.setNeedsDisplay()
