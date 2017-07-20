@@ -13,12 +13,12 @@ import UIKit
     static let DarkGreen: UIColor = UIColor(red: 76/255.0, green: 177/255.0, blue: 88/255.0, alpha: 1)
     static let LightGreen: UIColor = UIColor(red: 162/255.0, green: 235/255.0, blue: 176/255.0, alpha: 1)
     static let MediumGray: UIColor = UIColor(red: 211/255.0, green: 211/255.0, blue: 211/255.0, alpha: 1)
-    
+
     @IBInspectable public var needleRadius: CGFloat = 10
     override public var center: CGPoint {
         get {
             return CGPoint(x: self.centerX, y: self.centerY)
-            
+
         }
         set(value) {}
     }
@@ -54,7 +54,7 @@ import UIKit
     public var lowerNeedleLevel: NSInteger = 0
     public var upperNeedleLevel: NSInteger = 0
     @IBInspectable weak public var delegate: DJRangeGaugeDelegate?
-    
+
     
     //MARK: - init
     
@@ -147,7 +147,7 @@ import UIKit
         bgPathInner.stroke()
         bgPathInner.fill()
     }
-    
+
     func lighterColor(forColor c: UIColor) -> UIColor {
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -157,7 +157,7 @@ import UIKit
         
         return UIColor(red: min(1.0, red + 0.1), green: min(1.0, green + 0.1), blue: min(1.0, blue + 0.1), alpha: alpha)
     }
-    
+
     func drawNeedle(_ radian: CGFloat, needleColor: UIColor) {
         let distance = self.bgRadius - self.needleRadius
         let starttime: CGFloat = 0
@@ -199,11 +199,12 @@ import UIKit
         needleColor.set()
         needlePath.fill()
     }
-    
+
     func handlePan(gesture: UIPanGestureRecognizer) {
         let currentPosition = gesture.location(in: self)
         
-        if gesture.state == UIGestureRecognizerState.changed {
+        if gesture.state == UIGestureRecognizerState.changed ||
+           gesture.state == UIGestureRecognizerState.ended {
             let newRadian = self.calculateRadian(pos: currentPosition)
             
             //adjust whichever radian is closer, which is the same as moving the closer
@@ -214,15 +215,19 @@ import UIKit
             //make sure this doesn't cause upper to be lower than lower
             if(lowerDistance < upperDistance && newRadian < self.currentUpperRadian) {
                 self.currentLowerRadian = newRadian
+                self.setNeedsDisplay()
+                self.updateCurrentLowerLevel()
             }
             else if newRadian > self.currentLowerRadian {
                 self.currentUpperRadian = newRadian
+                self.setNeedsDisplay()
+                self.updateCurrentUpperLevel()
             }
             
-            
-            self.setNeedsDisplay()
-            self.updateCurrentLowerLevel()
-            self.updateCurrentUpperLevel()
+            //additional call for end of gesture (user releasing from pan)
+            if gesture.state == UIGestureRecognizerState.ended {
+                self.delegate?.rangeGaugeDidEndUpdating(self)
+            }
         }
     }
     
@@ -248,7 +253,7 @@ import UIKit
         
         // calculate distance between pos and tmpPoint
         let p23: CGFloat = self.calculateDistance(from: pos, to: tmpPoint)
-        
+
         // calculate distance between tmpPoint and center
         let p13: CGFloat = self.calculateDistance(from: tmpPoint, to: self.center)
         
@@ -257,18 +262,18 @@ import UIKit
         if pos.x <= self.center.x {
             result = -result
         }
-        
+    
         if result > CGFloat(Double.pi/2) {
             return CGFloat(Double.pi/2)
         }
-        
+    
         if result < -CGFloat(Double.pi/2) {
             return -CGFloat(Double.pi/2)
         }
-        
+
         return result
     }
-    
+
     func calculateDistance(from p1: CGPoint, to p2: CGPoint) -> CGFloat {
         let dx: CGFloat = p2.x - p1.x
         let dy: CGFloat = p2.y - p1.y
@@ -326,7 +331,7 @@ import UIKit
             self.setNeedsDisplay()
         }
     }
-    
+
     
     public func setCurrentUpperLevel(_ level: Int) {
         if level >= Int(self.minLevel) && level < Int(self.maxLevel) {
@@ -351,4 +356,5 @@ import UIKit
 public protocol DJRangeGaugeDelegate: class {
     func rangeGauge(_ gauge: DJRangeGauge, didChangeLowerLevel level: Int)
     func rangeGauge(_ gauge: DJRangeGauge, didChangeUpperLevel level: Int)
+    func rangeGaugeDidEndUpdating(_ gauge: DJRangeGauge)
 }
