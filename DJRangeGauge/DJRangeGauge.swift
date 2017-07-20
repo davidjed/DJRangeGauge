@@ -39,10 +39,10 @@ import UIKit
     @IBInspectable public var lowerNeedleColor: UIColor = DJRangeGauge.DarkGreen
     @IBInspectable public var upperNeedleColor: UIColor = DJRangeGauge.LightGreen
     @IBInspectable public var bgColor: UIColor = DJRangeGauge.MediumGray
-    @IBInspectable public var maxLevel: UInt = 10
-    @IBInspectable public var minLevel: UInt = 0
+    @IBInspectable public var maxLevel: Int = 10
+    @IBInspectable public var minLevel: Int = 0
     var bgRadius: CGFloat = 0
-    var scale: UInt {
+    var scale: Int {
         get {
             return self.maxLevel - self.minLevel
         }
@@ -51,8 +51,8 @@ import UIKit
     var currentUpperRadian: CGFloat = 0.0
     
     //publicly visible levels
-    public var lowerNeedleLevel: NSInteger = 0
-    public var upperNeedleLevel: NSInteger = 0
+    public var lowerNeedleLevel: Int = 0
+    public var upperNeedleLevel: Int = 0
     @IBInspectable weak public var delegate: DJRangeGaugeDelegate?
 
     
@@ -284,7 +284,14 @@ import UIKit
     //update of currentLevel in response to user pan
     public func updateCurrentLowerLevel() {
         let oldLowerLevel = self.lowerNeedleLevel
-        self.lowerNeedleLevel = self.updateCurrentLevel(currentRadian: self.currentLowerRadian)//level
+        var newLowerLevel = self.updateCurrentLevel(currentRadian: self.currentLowerRadian)
+        
+        //sanity check: can't go lower than min
+        if newLowerLevel < self.minLevel {
+            newLowerLevel = self.minLevel
+        }
+
+        self.lowerNeedleLevel = newLowerLevel
         if self.lowerNeedleLevel != oldLowerLevel && self.delegate != nil {
             self.delegate!.rangeGauge(self, didChangeLowerLevel: self.lowerNeedleLevel)
         }
@@ -293,7 +300,13 @@ import UIKit
     //update of currentLevel in response to user pan
     public func updateCurrentUpperLevel() {
         let oldUpperLevel = self.upperNeedleLevel
-        self.upperNeedleLevel = self.updateCurrentLevel(currentRadian: self.currentUpperRadian)//level
+        var newUpperLevel = self.updateCurrentLevel(currentRadian: self.currentUpperRadian)
+        
+        //sanity check: can't go higher than max
+        if newUpperLevel > self.maxLevel {
+            newUpperLevel = self.maxLevel
+        }
+        self.upperNeedleLevel = newUpperLevel
         if self.upperNeedleLevel != oldUpperLevel && self.delegate != nil {
             self.delegate!.rangeGauge(self, didChangeUpperLevel: self.upperNeedleLevel)
         }
@@ -307,7 +320,7 @@ import UIKit
         var currentSection: CGFloat = -CGFloat(Double.pi/2)
         
         let localScale = self.scale
-        for index: UInt in 1 ..< localScale + 1 {
+        for index: Int in 1 ..< localScale + 1 {
             if currentRadian >= currentSection && currentRadian < (currentSection + levelSection) {
                 level = Int(index)
                 break
