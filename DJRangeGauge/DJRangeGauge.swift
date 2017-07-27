@@ -303,8 +303,8 @@ import UIKit
         var newUpperLevel = self.updateCurrentLevel(currentRadian: self.currentUpperRadian)
         
         //sanity check: can't go higher than max
-        if newUpperLevel > self.maxLevel {
-            newUpperLevel = self.maxLevel
+        if newUpperLevel >= self.maxLevel {
+            newUpperLevel = self.maxLevel - 1
         }
         self.upperNeedleLevel = newUpperLevel
         if self.upperNeedleLevel != oldUpperLevel && self.delegate != nil {
