@@ -76,7 +76,7 @@ import UIKit
         self.bgRadius = self.bounds.size.height
         
         self.isOpaque = false
-        self.contentMode = UIViewContentMode.redraw
+        self.contentMode = UIView.ContentMode.redraw
         
         self.currentLowerRadian = 0;
         self.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(handlePan(gesture:))))
@@ -200,11 +200,11 @@ import UIKit
         needlePath.fill()
     }
 
-    func handlePan(gesture: UIPanGestureRecognizer) {
+    @objc func handlePan(gesture: UIPanGestureRecognizer) {
         let currentPosition = gesture.location(in: self)
         
-        if gesture.state == UIGestureRecognizerState.changed ||
-           gesture.state == UIGestureRecognizerState.ended {
+        if gesture.state == UIGestureRecognizer.State.changed ||
+           gesture.state == UIGestureRecognizer.State.ended {
             let newRadian = self.calculateRadian(pos: currentPosition)
             
             //adjust whichever radian is closer, which is the same as moving the closer
@@ -225,7 +225,7 @@ import UIKit
             }
             
             //additional call for end of gesture (user releasing from pan)
-            if gesture.state == UIGestureRecognizerState.ended {
+            if gesture.state == UIGestureRecognizer.State.ended {
                 self.delegate?.rangeGaugeDidEndUpdating(self)
             }
         }

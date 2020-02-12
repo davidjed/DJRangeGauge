@@ -32,5 +32,8 @@ class ViewController: UIViewController, DJRangeGaugeDelegate {
     func rangeGauge(_ gauge: DJRangeGauge, didChangeUpperLevel level: Int) {
         print("Current Upper Level is \(level)")
     }
+    
+    func rangeGaugeDidEndUpdating(_ gauge: DJRangeGauge) {
+    }
 }
 
