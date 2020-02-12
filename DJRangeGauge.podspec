@@ -8,7 +8,7 @@ Pod::Spec.new do |spec|
   spec.authors			= 'David Jedeikin'
   spec.homepage			= 'https://github.com/davidjed/DJRangeGauge'
   spec.source_files = 'DJRangeGauge/DJRangeGauge.*'  
-  spec.source			  = { :git => 'https://github.com/davidjed/DJRangeGauge.git', :tag => 'v0.0.2' }
+  spec.source			  = { :git => 'https://github.com/davidjed/DJRangeGauge.git', :tag => 'v0.0.3' }
   spec.framework    = 'UIKit'
   spec.requires_arc = true
 
