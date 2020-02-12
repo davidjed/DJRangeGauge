@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name 			  = 'DJRangeGauge'
-  spec.version 			= '0.0.2'
+  spec.version 			= '0.0.3'
   spec.summary			= 'Provides a dual-adjustable ios gauge control'
   spec.platform 		= :ios
   spec.license			= 'MIT'
