@@ -53,7 +53,7 @@ import UIKit
     //publicly visible levels
     public var lowerNeedleLevel: NSInteger = 0
     public var upperNeedleLevel: NSInteger = 0
-    @IBInspectable weak public var delegate: DJRangeGaugeDelegate?
+    weak public var delegate: DJRangeGaugeDelegate?
 
     
     //MARK: - init
