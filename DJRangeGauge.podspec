@@ -11,5 +11,6 @@ Pod::Spec.new do |spec|
   spec.source			  = { :git => 'https://github.com/davidjed/DJRangeGauge.git', :tag => 'v0.0.3' }
   spec.framework    = 'UIKit'
   spec.requires_arc = true
+  spec.swift_version = '5.0'
 
 end
